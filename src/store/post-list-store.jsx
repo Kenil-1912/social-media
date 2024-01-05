@@ -4,11 +4,14 @@ export const PostList = createContext({
   postList: [],
   addPost: () => {},
   deletePost: () => {},
+  addInitialPost: () => {},
 });
 
 const postListReducer = (currentPostList, action) => {
   if (action.type === "DELETE_ITEM") {
     return currentPostList.filter((obj) => obj.id !== action.payload.postId);
+  } else if (action.type === "ADD_INITIAL_ITEMS") {
+    return action.payload;
   } else if (action.type === "ADD_ITEM") {
     return [
       ...currentPostList,
@@ -26,10 +29,7 @@ const postListReducer = (currentPostList, action) => {
 };
 
 const PostListProvider = ({ children }) => {
-  const [postList, dispatchPostList] = useReducer(
-    postListReducer,
-    DEFAULT_POST_LIST
-  );
+  const [postList, dispatchPostList] = useReducer(postListReducer, []);
 
   const addPost = (userId, title, body, reactions, tags) => {
     const addItemAction = {
@@ -44,6 +44,14 @@ const PostListProvider = ({ children }) => {
       },
     };
     dispatchPostList(addItemAction);
+  };
+
+  const addInitialPost = (posts) => {
+    const addInitialItemAction = {
+      type: "ADD_INITIAL_ITEMS",
+      payload: posts,
+    };
+    dispatchPostList(addInitialItemAction);
   };
 
   const deletePost = (postId) => {
@@ -61,6 +69,7 @@ const PostListProvider = ({ children }) => {
         postList: postList,
         addPost: addPost,
         deletePost: deletePost,
+        addInitialPost: addInitialPost,
       }}
     >
       {children}
@@ -68,23 +77,23 @@ const PostListProvider = ({ children }) => {
   );
 };
 
-const DEFAULT_POST_LIST = [
-  {
-    id: "1",
-    title: "Going to Mumbai",
-    body: "Hii Friends i am going to mumbai for my vacations peace out !!",
-    reactions: 2,
-    userId: "user-9",
-    tags: ["vacation", "mumbai", "enjoy"],
-  },
-  {
-    id: "2",
-    title: "Pass ho gaye bhai",
-    body: "3 sal ki masti ke bad bhi first rank sa pass ho  gaye",
-    reactions: 15,
-    userId: "user-12",
-    tags: ["Graduting", "Unbelivable", "enjoy"],
-  },
-];
+// const DEFAULT_POST_LIST = [
+//   {
+//     id: "1",
+//     title: "Going to Mumbai",
+//     body: "Hii Friends i am going to mumbai for my vacations peace out !!",
+//     reactions: 2,
+//     userId: "user-9",
+//     tags: ["vacation", "mumbai", "enjoy"],
+//   },
+//   {
+//     id: "2",
+//     title: "Pass ho gaye bhai",
+//     body: "3 sal ki masti ke bad bhi first rank sa pass ho  gaye",
+//     reactions: 15,
+//     userId: "user-12",
+//     tags: ["Graduting", "Unbelivable", "enjoy"],
+//   },
+// ];
 
 export default PostListProvider;
