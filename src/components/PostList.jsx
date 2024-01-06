@@ -8,13 +8,19 @@ const PostList = () => {
   const { postList, addInitialPost } = useContext(PostListContext);
   const [loader, setLoader] = useState(false);
   useEffect(() => {
+    const controller = new AbortController();
+    const signal = controller.signal;
     setLoader(true);
-    fetch("https://dummyjson.com/posts")
+    fetch("https://dummyjson.com/posts", { signal })
       .then((res) => res.json())
       .then((data) => {
         addInitialPost(data.posts);
         setLoader();
       });
+
+    return () => {
+      controller.abort();
+    };
   }, []);
   false;
   return (
