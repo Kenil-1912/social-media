@@ -1,8 +1,11 @@
 import React, { useContext, useRef } from "react";
 import { PostList } from "../store/post-list-store";
+import { useNavigate } from "react-router-dom";
 
 const CreatePost = () => {
   const { addPost } = useContext(PostList);
+
+  const navigate = useNavigate();
 
   const userIdElement = useRef();
   const titleElement = useRef();
@@ -20,6 +23,7 @@ const CreatePost = () => {
       .split(/\s+/)
       .filter((tag) => tag.trim() !== "");
     addPost(userId, title, body, reactions, tags);
+    navigate("/");
   };
 
   return (
