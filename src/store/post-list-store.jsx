@@ -1,10 +1,10 @@
-import { createContext, useReducer } from "react";
+import { createContext, useEffect, useReducer, useState } from "react";
 
 export const PostList = createContext({
   postList: [],
   addPost: () => {},
   deletePost: () => {},
-  addInitialPost: () => {},
+  loader: false,
 });
 
 const postListReducer = (currentPostList, action) => {
@@ -14,7 +14,6 @@ const postListReducer = (currentPostList, action) => {
     return action.payload;
   } else if (action.type === "ADD_ITEM") {
     return [
-      ...currentPostList,
       {
         id: action.payload.id,
         title: action.payload.title,
@@ -23,6 +22,7 @@ const postListReducer = (currentPostList, action) => {
         userId: action.payload.userId,
         tags: action.payload.tags,
       },
+      ...currentPostList,
     ];
   }
   return currentPostList;
@@ -30,6 +30,7 @@ const postListReducer = (currentPostList, action) => {
 
 const PostListProvider = ({ children }) => {
   const [postList, dispatchPostList] = useReducer(postListReducer, []);
+  const [loader, setLoader] = useState(false);
 
   const addPost = (userId, title, body, reactions, tags) => {
     const addItemAction = {
@@ -63,37 +64,35 @@ const PostListProvider = ({ children }) => {
     };
     dispatchPostList(deleteItemAction);
   };
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const signal = controller.signal;
+    setLoader(true);
+    fetch("https://dummyjson.com/posts", { signal })
+      .then((res) => res.json())
+      .then((data) => {
+        addInitialPost(data.posts);
+        setLoader(false);
+      });
+
+    return () => {
+      controller.abort();
+    };
+  }, []);
+
   return (
     <PostList.Provider
       value={{
         postList: postList,
         addPost: addPost,
         deletePost: deletePost,
-        addInitialPost: addInitialPost,
+        loader: loader,
       }}
     >
       {children}
     </PostList.Provider>
   );
 };
-
-// const DEFAULT_POST_LIST = [
-//   {
-//     id: "1",
-//     title: "Going to Mumbai",
-//     body: "Hii Friends i am going to mumbai for my vacations peace out !!",
-//     reactions: 2,
-//     userId: "user-9",
-//     tags: ["vacation", "mumbai", "enjoy"],
-//   },
-//   {
-//     id: "2",
-//     title: "Pass ho gaye bhai",
-//     body: "3 sal ki masti ke bad bhi first rank sa pass ho  gaye",
-//     reactions: 15,
-//     userId: "user-12",
-//     tags: ["Graduting", "Unbelivable", "enjoy"],
-//   },
-// ];
 
 export default PostListProvider;

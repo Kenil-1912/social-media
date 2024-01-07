@@ -5,24 +5,8 @@ import Welcome from "./Welcome";
 import Loader from "./Loader";
 
 const PostList = () => {
-  const { postList, addInitialPost } = useContext(PostListContext);
-  const [loader, setLoader] = useState(false);
-  useEffect(() => {
-    const controller = new AbortController();
-    const signal = controller.signal;
-    setLoader(true);
-    fetch("https://dummyjson.com/posts", { signal })
-      .then((res) => res.json())
-      .then((data) => {
-        addInitialPost(data.posts);
-        setLoader();
-      });
+  const { postList, loader } = useContext(PostListContext);
 
-    return () => {
-      controller.abort();
-    };
-  }, []);
-  false;
   return (
     <div>
       {loader && <Loader />}
